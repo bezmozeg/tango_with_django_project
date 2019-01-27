@@ -14,7 +14,40 @@
 
     <div class="">
       hey there partner! <br/>
-      <strong>{{boldmessage}}</strong><br/>
+
+      <div class="">
+        {% if categories%}
+        <h1>Most liked categories</h1>
+
+        <ul>
+          {% for cat in categories %}
+
+          <li> <a href="/rango/category/{{cat.slug}}">{{cat.name}}</a> </li>
+          {%endfor%}
+        </ul>
+
+        {%else%}
+        <strong>There are no categories</strong>
+        {%endif%}
+      </div>
+
+      <div class="">
+        {% if pages %}
+
+        <h1>Most viewed pages</h1>
+
+        <ul>
+          {% for page in pages %}
+          <li> <a href="{{page.url}}">{{page.title}}</a>  </li>
+          {%endfor%}
+        </ul>
+        {%else%}
+        <strong>There are no pages to display</strong>
+        {%endif%}
+
+      </div>
+
+
     </div>
 
     <div class="">
