@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
+from datetime import datetime
 # Create your views here.
 
 def index(request):
@@ -17,12 +18,20 @@ def index(request):
 
     page_list = Page.objects.order_by('-views')[:5]
 
+    request.session.set_test_cookie()
+
     context = {'categories': category_list,'pages':page_list}
 
-    return render(request,'rango/index.html',context=context)
+    response = render(request,'rango/index.html',context=context)
+
+    visitor_cookie_handler(request,response)
+
+    return response
 
 def about(request):
     context = {'yourname':'Richard Nemeth'}
+    if(request.session.test_cookie_worked()):
+        print('TEST COOKIE WORKED!')
     return render(request,'rango/about.html',context=context)
 
 def show_category(request,category_name_slug):
@@ -161,3 +170,21 @@ def user_logout(request):
     logout(request)
 
     return HttpResponseRedirect(reverse('index'))
+
+def visitor_cookie_handler(request,response):
+
+    visits = int(request.COOKIES.get('visits','1'))
+
+    last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7],
+        '%Y-%m-%d %H:%M:%S')
+
+    if (datetime.now() - last_visit_time).days > 0:
+        visits = visits + 1
+        # Update the last visit cookie now that we have updated the count
+        response.set_cookie('last_visit', str(datetime.now()))
+    else:
+        # Set the last visit cookie
+        response.set_cookie('last_visit', last_visit_cookie)
+        # Update/set the visits cookie
+        response.set_cookie('visits', visits)
