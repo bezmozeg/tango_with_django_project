@@ -30,6 +30,10 @@ def about(request):
     context = {'yourname':'Richard Nemeth'}
     if(request.session.test_cookie_worked()):
         print('TEST COOKIE WORKED!')
+
+    visitor_cookie_handler(request)
+    context['visits'] = request.session['visits']
+    
     return render(request,'rango/about.html',context=context)
 
 def show_category(request,category_name_slug):
